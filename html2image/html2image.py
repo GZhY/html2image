@@ -4,31 +4,31 @@
 """ This is a XXX script.
 What is the function of this script? """
 
-__author__ = 'GZhY'
-__version__ = 1.0
-
-from selenium import webdriver
-from PIL import Image
 import io
 import time
 import JSInjection
+from PIL import Image
+from selenium import webdriver
+
+__author__ = 'GZhY'
+__version__ = 1.0
 
 
 class Html2Image:
-    def __init__(self, url, jsCode=None):
+    def __init__(self, url, jscode=None):
         self.browser = webdriver.PhantomJS()
         self.browser.set_window_size(1200, 900)
         self.browser.get(url)
-        self.jsCode = jsCode
+        self.jscode = jscode
         self.image = None
 
-    def getImage(self):
-        if self.jsCode is not None and isinstance(self.jsCode, JSInjection.JSCode) and self.jsCode.getJSCode != "":
+    def get_image(self):
+        if self.jscode is not None and isinstance(self.jscode, JSInjection.JSCode) and self.jscode.get_jscode != "":
             # print(self.jsCode.getJSCode())
-            self.browser.execute_script(self.jsCode.getJSCode())
+            self.browser.execute_script(self.jscode.get_jscode())
             for i in range(30):
                 # print(self.browser.title)
-                if self.jsCode.finishedSign in self.browser.title:
+                if self.jscode.finished_sign in self.browser.title:
                     break
                 time.sleep(10)
 
@@ -36,24 +36,24 @@ class Html2Image:
         # self.browser.close()
         return self.image
 
-    def getElementImage(self, cssSelector):
-        if not self.image:
-            self.getImage()
-        element = self.browser.find_element_by_css_selector(cssSelector)
+    def get_element_image(self, css_selector):
+        if self.image is None:
+            self.get_image()
+        element = self.browser.find_element_by_css_selector(css_selector)
         left, top = element.location['x'], element.location['y']
         right = left + element.size['width']
         bottom = top + element.size['height']
         im = Image.open(io.BytesIO(self.image))
         im = im.crop((left, top, right, bottom))
         # im.show()
-        imgByteArr = io.BytesIO()
-        im.save(imgByteArr, format='PNG')
-        return imgByteArr.getvalue()
+        img_byte_arr = io.BytesIO()
+        im.save(img_byte_arr, format='PNG')
+        return img_byte_arr.getvalue()
 
-    def saveImage(self, image=None, filename="result.png"):
-        if not image:
-            if not self.image:
-                image = self.getImage()
+    def save_image(self, image=None, filename="result.png"):
+        if image is None:
+            if self.image is None:
+                image = self.get_image()
             else:
                 image = self.image
         try:
@@ -62,7 +62,7 @@ class Html2Image:
         except IOError:
             return False
         finally:
-            image = None
+            del image
         return True
 
     def __del__(self):
@@ -71,5 +71,5 @@ class Html2Image:
 
 if __name__ == '__main__':
     h2i = Html2Image("https://www.baidu.com/", JSInjection.Scroll2Bottom())
-    h2i.saveImage(h2i.getImage())
-    h2i.saveImage(h2i.getElementImage("#head > div > div.s_form > div"), "element.png")
+    h2i.save_image()
+    h2i.save_image(h2i.get_element_image("#head > div > div.s_form > div"), "element.png")

@@ -11,19 +11,19 @@ __version__ = 1.0
 class JSCode:
     __metaclass__ = ABCMeta
 
-    finishedSign = "Hi, I completed the JS injection!"
-    # 请在js代码表示执行完毕的位置加入此代码,外部函数会根据网页title中是否包含`finishedSign`来判断js代码是否执行完毕
-    # js函数运行是异步的方式, 若js代码里有函数执行,直接把`finishedCode`加到最后是行不通的
+    finished_sign = "Hi, I completed the JS injection!"
+    # 请在js代码表示执行完毕的位置加入`finished_code`,外部函数会根据网页title中是否包含`finished_sign`来判断js代码是否执行完毕
+    # js函数运行是异步的方式, 若js代码里有函数执行,直接把`finished_code`加到最后是行不通的
     # 虽然有方法可以把函数改成同步方式,但没想到通式的方法(js盲),只能做这样处理了.
-    finishedCode = "document.title += '" + finishedSign + "';"
+    finished_code = "document.title += '" + finished_sign + "';"
 
     @abstractmethod
-    def getJSCode(self):
+    def get_jscode(self):
         return ""
 
 
 class Scroll2Bottom(JSCode):
-    def getJSCode(self):
+    def get_jscode(self):
         return """(function () {
             var y = 0;
             var step = 100;
@@ -36,7 +36,7 @@ class Scroll2Bottom(JSCode):
                     window.scrollTo(0, y);
                     setTimeout(f, 100);
                 } else {
-                    window.scrollTo(0, 0);""" + self.finishedCode + """
+                    window.scrollTo(0, 0);""" + self.finished_code + """
                 }
             }
             setTimeout(f, 1000);
